@@ -103,18 +103,11 @@ class SolverViewController: UIViewController {
         return [labelA, labelB, labelC]
     }
     
+    
+    
 
     @IBAction func solveButtonPressed(_ sender: UIButton) {
-        if selectedInputSegment == 0 {
-            if sideTextValues[selectedTextFieldIndex] == nil || sideTextValues[selectedTextFieldIndex] == "" {
-                print("this happens")
-                sideTextValues[selectedTextFieldIndex] = selectedTextField?.text
-            }
-        } else {
-            if angleTextValues[selectedTextFieldIndex] == nil || angleTextValues[selectedTextFieldIndex] == "" {
-                angleTextValues[selectedTextFieldIndex] = selectedTextField?.text
-            }
-        }
+        storeTextValues()
         let textValues = sideTextValues + angleTextValues
         do {
             print(textValues)
@@ -144,18 +137,42 @@ class SolverViewController: UIViewController {
     }
     
     @IBAction func clearButtonPressed(_ sender: UIButton) {
-        for textField in textFields {textField.text = nil}
+        clearTextFields()
         errorLabel.text = "Enter in 3 values"
         errorLabel.textColor = .label
     }
     
     @IBAction func inputTypeChanged(_ sender: UISegmentedControl) {
+        storeTextValues()
         selectedInputSegment = sender.selectedSegmentIndex
         changeTextFieldLabels()
+        clearTextFields()
+        restoreTextValues()
+        
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! ResultsViewController
         destinationVC.model = model
+    }
+    
+    func clearTextFields() {
+        for textField in textFields {textField.text = nil}
+    }
+    
+    func storeTextValues() {
+        let textValues = [textFieldA.text, textFieldB.text, textFieldC.text]
+        if selectedInputSegment == 0 {
+            sideTextValues = textValues
+        } else {
+            angleTextValues = textValues
+        }
+    }
+    
+    func restoreTextValues() {
+        for i in 0...2 {
+            textFields[i].text = selectedInputSegment == 0 ? sideTextValues[i] : angleTextValues[i]
+        }
+        
     }
     
     func changeTextFieldLabels() {
@@ -179,14 +196,6 @@ extension SolverViewController : UITextFieldDelegate {
             self.stackViewConstraint.constant = 0
             self.view.layoutIfNeeded()
         }
-        let index = textFields.firstIndex(of: textField)!
-        if (selectedInputSegment == 0) {
-            print(textField.text)
-            sideTextValues[index] = textField.text
-        } else {
-            angleTextValues[index] = textField.text
-        }
-        
     }
 }
 
